@@ -3107,6 +3107,10 @@ class HostAPI(base.Base):
     def compute_node_statistics(self, context):
         return self.db.compute_node_statistics(context)
 
+    def provision_tpm(self, context, host, pcrs):
+        return self.rpcapi.provision_tpm(context, host, pcrs)
+
+
 
 class InstanceActionAPI(base.Base):
     """Sub-set of the Compute Manager API for managing instance actions."""

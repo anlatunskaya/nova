@@ -851,6 +851,12 @@ class ComputeAPI(rpcclient.RpcProxy):
                    volume_id=volume_id, snapshot_id=snapshot_id,
                    delete_info=delete_info)
 
+    def provision_tpm(self, context, host, pcrs):
+        version = self._get_compat_version('3.0', '2.0')
+        cctxt = self.client.prepare(server=host, version=version)
+        return cctxt.call(context, 'provision_tpm', pcrs)
+
+
 
 class SecurityGroupAPI(rpcclient.RpcProxy):
     '''Client side of the security group rpc API.

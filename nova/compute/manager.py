@@ -5196,3 +5196,9 @@ class ComputeManager(manager.Manager):
                     instance.cleaned = True
                 with utils.temporary_mutation(context, read_deleted='yes'):
                     instance.save(context)
+
+    @wrap_exception()
+    def tpm_provision(self, context, pcrs):
+        """Returns the tuple of pcrshash, uuid, public key and type of attestation."""
+        return self.driver.tpm_provision(self.host, context, pcrs)
+
