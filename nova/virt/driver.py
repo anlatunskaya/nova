@@ -1103,7 +1103,7 @@ class ComputeDriver(object):
         """Default the missing device names in the block device mapping."""
         raise NotImplementedError()
 
-    def tpm_provision(self, host, context, pcrs):
+    def provision_tpm(self, host, context, pcrs):
         """Returns the tuple of pcrshash, uuid, public key and type of attestation."""
         raise NotImplementedError()
 
