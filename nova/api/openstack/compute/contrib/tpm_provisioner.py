@@ -27,7 +27,7 @@ from nova import utils
 
 
 LOG = logging.getLogger(__name__)
-authorize = extensions.extension_authorizer('compute', 'provision')
+authorize = extensions.extension_authorizer('compute', 'tpmprovisioner')
 
 
 class ProvisionController(object):
@@ -53,7 +53,7 @@ class ProvisionController(object):
         #store type, uuid, pcrs, pcrhash and pkey somewhere and assume it is trusted
 
 
-class Provision(extensions.ExtensionDescriptor):
+class Tpm_provisioner(extensions.ExtensionDescriptor):
     """TPM provisioner"""
 
     name = "TPM-provisioner"
