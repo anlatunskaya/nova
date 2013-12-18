@@ -4954,6 +4954,30 @@ class LibvirtDriver(driver.ComputeDriver):
                                        ephemerals, swap,
                                        block_device_mapping)
 
+     def provision_tpm(self, context, pcrs):
+         import shutil
+         import tempfile
+         import uuid
+         import base64
+         if '0' in open('/sys/class/misc/tpm0/device/owned').read():
+             utils.execute('tpm_takeownership', '-y', '-z')
+             LOG.info('Taking tpm ownership')
+         LOG.info('Generating AIK')
+         tmp_dir = tempfile.mkdtemp()
+         utils.execute('tpm_mkaik', '-z', tmp_dir+'/blob', tmp_dir+'/pkey')
+         key_uuid=str(uuid.uuid1())
+         open(tmp_dir+'/uuid','w+').write(key_uuid)
+         LOG.info('Storing AIK into TPM')
+         utils.execute('tpm_loadkey', tmp_dir+'/blob', tmp_dir+'/uuid')
+         LOG.info(_('Fetching PCR hash for PCRs %s'), pcrs)
+         utils.execute('tpm_getpcrhash', tmp_dir+'/uuid', tmp_dir+'/hashout', tmp_dir+'/pcrvals', *pcrs)
+         pcrhash = base64.b64encode(open(tmp_dir+'/hashout','rb').read())
+         pkey = base64.b64encode(open(tmp_dir+'/pkey').read())
+         LOG.info(_('Sending tpm %s %s'), pcrhash, pkey)
+         return "tpm",pcrhash,pkey,key_uuid
+
+
+
 
 class HostState(object):
     """Manages information about the compute node through libvirt."""

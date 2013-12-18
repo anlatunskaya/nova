@@ -854,7 +854,7 @@ class ComputeAPI(rpcclient.RpcProxy):
     def provision_tpm(self, context, host, pcrs):
         version = self._get_compat_version('3.0', '2.0')
         cctxt = self.client.prepare(server=host, version=version)
-        return cctxt.call(context, 'provision_tpm', pcrs)
+        return cctxt.call(context, 'provision_tpm', pcrs=pcrs)
 
 
 

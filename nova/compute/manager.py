@@ -5200,5 +5200,5 @@ class ComputeManager(manager.Manager):
     @wrap_exception()
     def provision_tpm(self, context, pcrs):
         """Returns the tuple of pcrshash, uuid, public key and type of attestation."""
-        return self.driver.provision_tpm(self.host, context, pcrs)
+        return self.driver.provision_tpm(context, pcrs)
 

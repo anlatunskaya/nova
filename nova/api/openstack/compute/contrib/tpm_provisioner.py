@@ -24,12 +24,11 @@ from nova.openstack.common.gettextutils import _
 from nova.openstack.common import log as logging
 from nova.openstack.common import strutils
 from nova import utils
-
+#import base64
 
 LOG = logging.getLogger(__name__)
+
 authorize = extensions.extension_authorizer('compute', 'tpmprovisioner')
-
-
 class ProvisionController(object):
     def __init__(self):
         self.host_api = compute.HostAPI()
@@ -41,6 +40,7 @@ class ProvisionController(object):
         authorize(context)
         host=body['host']
         pcrs=body['pcrs']
+        LOG.info(_('cfg = %s'), )
         try:
             self.host_api.service_get_by_compute_host(context, host)
         except exception.NotFound:
@@ -48,8 +48,15 @@ class ProvisionController(object):
             raise exc.HTTPNotFound(explanation=msg)
         #todo(tsipa)
         #check if node is not provisioned yet
+        #import pdb; pdb.set_trace()
+
         LOG.info(_('Provisioning host %s with PCRs %s'), host, pcrs)
-        type,pcrhash,pkey=self.host_api.provision_tpm(context, host, pcrs)
+        type,pcrhash,pkey,uuid=self.host_api.provision_tpm(context, host, pcrs)
+        #pcrhash_bin=base64.b64decode(pcrhash)
+        #pkey_bin=base64.b64decode(pkey)
+        return { "hostname": host, "pcrs": pcrs, "auth_type": type, "uuid": uuid, "pkey": pkey, "pure_hash": pcrhash }
+#        return type+' '+pcrhash+' '+pkey
+#+base64.b64decode(pkey)
         #store type, uuid, pcrs, pcrhash and pkey somewhere and assume it is trusted
 
 
