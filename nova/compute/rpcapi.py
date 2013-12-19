@@ -856,6 +856,10 @@ class ComputeAPI(rpcclient.RpcProxy):
         cctxt = self.client.prepare(server=host, version=version)
         return cctxt.call(context, 'provision_tpm', pcrs=pcrs)
 
+    def quote_tpm(self, context, host, salt, pcrs, key_uuid):
+        version = self._get_compat_version('3.0', '2.0')
+        cctxt = self.client.prepare(server=host, version=version)
+        return cctxt.call(context, 'quote_tpm', salt=salt, pcrs=pcrs, key_uuid=key_uuid)
 
 
 class SecurityGroupAPI(rpcclient.RpcProxy):

@@ -1107,6 +1107,11 @@ class ComputeDriver(object):
         """Returns the tuple of pcrshash, uuid, public key and type of attestation."""
         raise NotImplementedError()
 
+    def quote_tpm(self, context, pcrs, salt, key_uuid):
+        """Return quoted hash in base64"""
+        raise NotImplementedError()
+
+
 def load_compute_driver(virtapi, compute_driver=None):
     """Load a compute driver module.
 

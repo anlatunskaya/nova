@@ -52,6 +52,9 @@ import tempfile
 import threading
 import time
 import uuid
+import base64
+import hashlib
+
 
 from eventlet import greenio
 from eventlet import greenthread
@@ -4955,10 +4958,6 @@ class LibvirtDriver(driver.ComputeDriver):
                                        block_device_mapping)
 
      def provision_tpm(self, context, pcrs):
-         import shutil
-         import tempfile
-         import uuid
-         import base64
          if '0' in open('/sys/class/misc/tpm0/device/owned').read():
              utils.execute('tpm_takeownership', '-y', '-z')
              LOG.info('Taking tpm ownership')
@@ -4976,6 +4975,15 @@ class LibvirtDriver(driver.ComputeDriver):
          LOG.info(_('Sending tpm %s %s'), pcrhash, pkey)
          return "tpm",pcrhash,pkey,key_uuid
 
+    def quote_tpm(self, context, salt, pcrs, key_uuid):
+       LOG.debug('Quoting %s with PCRs %s using key %s', salt, pcrs, key_uuid)
+       tmp_dir = tempfile.mkdtemp()
+       open(tmp_dir+'/uuid','w+').write(key_uuid)
+       open(tmp_dir+'/nonce','w+').write(hashlib.sha1(salt).digest())
+       utils.execute('tpm_getquote', tmp_dir+'/uuid', tmp_dir+'/nonce', tmp_dir+'/outquote', *pcrs)
+       quotedhash = base64.b64encode(open(tmp_dir+'/outquote').read())
+       shutil.rmtree(tmp_dir)
+       return quotedhash
 
 
 

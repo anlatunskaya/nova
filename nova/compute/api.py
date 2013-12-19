@@ -3110,6 +3110,9 @@ class HostAPI(base.Base):
     def provision_tpm(self, context, host, pcrs):
         return self.rpcapi.provision_tpm(context, host, pcrs)
 
+    def quote_tpm(self, context, host, salt, pcrs, key_uuid):
+        return self.rpcapi.quote_tpm(context, host, salt, pcrs, key_uuid)
+
 
 
 class InstanceActionAPI(base.Base):
