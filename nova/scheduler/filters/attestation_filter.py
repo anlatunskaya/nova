@@ -66,24 +66,19 @@ class Attestation(object):
         self.host_api = compute.HostAPI()
         self.kc = kc
 
-    def _validate(self, salted_hash, pkey, pure_hash, salt):
-        tmp_dir = tempfile.mkdtemp()
-        open(tmp_dir+'/key','w+').write(base64.b64decode(pkey))
-        open(tmp_dir+'/purehash','w+').write(base64.b64decode(pure_hash))
-        open(tmp_dir+'/nonce','w+').write(hashlib.sha1(salt).digest())
-        open(tmp_dir+'/salted_hash','w+').write(base64.b64decode(salted_hash))
-        utils.execute('tpm_verifyquote', tmp_dir+'/key', tmp_dir+'/purehash', tmp_dir+'/nonce', tmp_dir+'/salted_hash')
-        shutil.rmtree(tmp_dir)
-        return True
+    def _validate(self, id, salted_hash, salt):
+        return self.kc.attestation.validate(id, salted_hash, salt)['valid']
+
     def get_quote(self, nova_context, host, salt):
         host_key = self.kc.attestation.find(hostname = host, service = "compute")
-        LOG.debug(_('Quoting %s on %s with %s using key %s'), salt, host, host_key['PCRs'], host_key['uuid'])
-        quote = self.host_api.quote_tpm(nova_context, host, salt, host_key['PCRs'], host_key['uuid'])
-        is_valid = self._validate(quote, host_key['pkey'], host_key['pure_hash'], salt)
+        if not host_key['valid']:
+          LOG.debug(_('Quoting %s on %s with %s using key %s'), salt, host, host_key['PCRs'], host_key['uuid'])
+          quote = self.host_api.quote_tpm(nova_context, host, salt, host_key['PCRs'], host_key['uuid'])
+          is_valid = self._validate(host_key['id'], quote, salt)
+        else:
+          is_valid = host_key['valid']
         return is_valid
 
-    def check_quote(self, context, host, salt, hash):
-        pass
 
 class AttestationFilter(filters.BaseHostFilter):
 
